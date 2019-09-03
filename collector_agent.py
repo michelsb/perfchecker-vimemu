@@ -60,7 +60,8 @@ class CollectorAgent():
         tx_dropped = mapped['tx_dropped']
         tx_packets = mapped['tx_packets']
         tx_bytes = mapped['tx_bytes']
-        if_entry['rx_dropped'] = float(rx_dropped)
+        if_entry = {}
+	if_entry['rx_dropped'] = float(rx_dropped)
         if_entry['rx_packets'] = float(rx_packets)
         if_entry['rx_bytes'] = float(rx_bytes)
         if_entry['tx_dropped'] = float(tx_dropped)
