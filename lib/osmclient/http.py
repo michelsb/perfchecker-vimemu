@@ -17,7 +17,7 @@
 from io import BytesIO
 import pycurl
 import json
-from common import http
+from lib.osmclient.common import http
 
 class Http(http.Http):
 

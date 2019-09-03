@@ -24,16 +24,16 @@ OSM SOL005 client API
 #from osmclient.sol005 import nsd
 #from osmclient.sol005 import nst
 #from osmclient.sol005 import nsi
-import ns
-import vnf
+import lib.osmclient.ns as ns
+import lib.osmclient.vnf as vnf
 #from osmclient.sol005 import vim
 #from osmclient.sol005 import package
-import http
+import lib.osmclient.http as http
 #from osmclient.sol005 import sdncontroller
 #from osmclient.sol005 import project as projectmodule
 #from osmclient.sol005 import user as usermodule
 #from osmclient.sol005 import pdud
-from common.exceptions import ClientException
+from lib.osmclient.common.exceptions import ClientException
 import json
 
 class Client(object):

@@ -18,8 +18,8 @@
 OSM vnf API handling
 """
 
-from common import utils
-from common.exceptions import NotFound
+from lib.osmclient.common import utils
+from lib.osmclient.common.exceptions import NotFound
 
 
 class Vnf(object):
