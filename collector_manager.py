@@ -94,16 +94,16 @@ class CollectorManager():
                 vnfs = self.osmclient.vnf.list(filter=flt)
                 for vnf in vnfs:
                     for vdu in vnf["vdur"]:
-                        for vm_vif in server_entry['vm_vifs']
+                        for vm_vif in server_entry['vm_vifs']:
                             prefix_size = len(vm_vif["dc_name"])+1
                             vm_name = vm_vif["vm_name"][prefix_size:]
                             if vm_name == vdu["name"]:
                                 vm_vif["ns_name"] = ns["name"]
                                 vm_vif["ns_id"] = ns["id"]
                                 vm_vif["vnf_id"] = vnf["id"]
-        else:
-            self.osmclient = Client(host=self.nbi_host_ip)
-            break
+		else:
+            		self.osmclient = Client(host=self.nbi_host_ip)
+	  		break
 
         print("Stats from server " + self.hostname + " captured...")
 
