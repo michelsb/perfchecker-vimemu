@@ -1,22 +1,22 @@
-#!/usr/bin/python
-import commands
+#!/usr/bin/python3
+import os
 import time
 import re
 
 
 class CollectorAgent():
     def __init__(self):
-        self.hostname = commands.getoutput("hostname")  # Get the hostname
+        self.hostname = os.popen("hostname").read()  # Get the hostname
         self.phy_interfaces = ['eth0', 'eth1']
         #self.tun_interfaces = ['fs1-eth1','root-eth0']
         self.results = dict()
        
 
     def get_hardware_resources(self):
-        cpu_data = commands.getoutput("top -b -n1 -p 1 | grep 'Cpu' | tail -1").split(" ")
+        cpu_data = os.popen("top -b -n1 -p 1 | grep 'Cpu' | tail -1").read().split(" ")
         cpu_idle = float(cpu_data[cpu_data.index("id,")-1])
         cpu_load = 100 - cpu_idle
-        mem_load = (float(commands.getoutput('free -m | fgrep "Mem"').split()[2]) / float(commands.getoutput('free -m | fgrep "Mem"').split()[1])) * 100
+        mem_load = (float(os.popen('free -m | fgrep "Mem"').read().split()[2]) / float(os.popen('free -m | fgrep "Mem"').read().split()[1])) * 100
         self.results['cpu_load'] = round(cpu_load,1)
         self.results['mem_load'] = round(mem_load,1)
 
@@ -24,12 +24,12 @@ class CollectorAgent():
         self.results['pifs'] = []
         for interface in self.phy_interfaces:
             pif_entry = {'name':interface}
-            rx_dropped = commands.getoutput("cat /sys/class/net/" + interface + "/statistics/rx_dropped")
-            rx_packets = commands.getoutput("cat /sys/class/net/" + interface + "/statistics/rx_packets")
-            rx_bytes = commands.getoutput("cat /sys/class/net/" + interface + "/statistics/rx_bytes")
-            tx_dropped = commands.getoutput("cat /sys/class/net/" + interface + "/statistics/tx_dropped")
-            tx_packets = commands.getoutput("cat /sys/class/net/" + interface + "/statistics/tx_packets")
-            tx_bytes = commands.getoutput("cat /sys/class/net/" + interface + "/statistics/tx_bytes")
+            rx_dropped = os.popen("cat /sys/class/net/" + interface + "/statistics/rx_dropped").read()
+            rx_packets = os.popen("cat /sys/class/net/" + interface + "/statistics/rx_packets").read()
+            rx_bytes = os.popen("cat /sys/class/net/" + interface + "/statistics/rx_bytes").read()
+            tx_dropped = os.popen("cat /sys/class/net/" + interface + "/statistics/tx_dropped").read()
+            tx_packets = os.popen("cat /sys/class/net/" + interface + "/statistics/tx_packets").read()
+            tx_bytes = os.popen("cat /sys/class/net/" + interface + "/statistics/tx_bytes").read()
             pif_entry['rx_dropped'] = float(rx_dropped)
             pif_entry['rx_packets'] = float(rx_packets)
             pif_entry['rx_bytes'] = float(rx_bytes)
@@ -40,8 +40,8 @@ class CollectorAgent():
 
     def cpu_back_queue_stats(self):
         self.results['cpu_back_queue'] = []
-        processed_packets_per_core = commands.getoutput("cat /proc/net/softnet_stat | awk '{print $1}'").split("\n")
-        dropped_packets_per_core = commands.getoutput("cat /proc/net/softnet_stat | awk '{print $2}'").split("\n")
+        processed_packets_per_core = os.popen("cat /proc/net/softnet_stat | awk '{print $1}'").read().split("\n")[:-1]
+        dropped_packets_per_core = os.popen("cat /proc/net/softnet_stat | awk '{print $2}'").read().split("\n")[:-1]
         numCores = len(processed_packets_per_core)
         for x in range(0, numCores):
             queue_entry = {'name':x}
@@ -50,7 +50,7 @@ class CollectorAgent():
             self.results['cpu_back_queue'].append(queue_entry)
 
     def get_ovs_if_stats(self, interface):
-        data = commands.getoutput("ovs-vsctl get Interface " + interface + " statistics")
+        data = os.popen("ovs-vsctl get Interface " + interface + " statistics").read()
         mapped = {}
         pair_re = re.compile('(\w+)=(\d+)')
         mapped.update(pair_re.findall(data))
@@ -74,10 +74,10 @@ class CollectorAgent():
         # [line.replace(" ","")[1:-1].split("|") for line in commands.getoutput("vim-emu datacenter list").split('\n') if "-+-" not in line and "=+=" not in line]
         # [line.replace(" ","")[1:-1].split("|") for line in commands.getoutput("vim-emu compute list").split('\n') if "-+-" not in line and "=+=" not in line]
 
-        datacenter_list = [line.replace(" ","")[1:-1].split("|") for line in commands.getoutput("vim-emu datacenter list").split('\n') if "-+-" not in line and "=+=" not in line][1:]
-        compute_list = [line.replace(" ","")[1:-1].split("|") for line in commands.getoutput("vim-emu compute list").split('\n') if "-+-" not in line and "=+=" not in line][1:]
+        datacenter_list = [line.replace(" ","")[1:-1].split("|") for line in os.popen("vim-emu datacenter list").read().split('\n') if "-+-" not in line and "=+=" not in line][1:-1]
+        compute_list = [line.replace(" ","")[1:-1].split("|") for line in os.popen("vim-emu compute list").read().split('\n') if "-+-" not in line and "=+=" not in line][1:-1]
 
-        br_list = commands.getoutput("ovs-vsctl list-br").split("\n")
+        br_list = os.popen("ovs-vsctl list-br").read().split("\n")[:-1]
 
         #self.results['vifs'] = []
         self.results['dc_brs'] = []
@@ -100,7 +100,7 @@ class CollectorAgent():
                 self.results['other_brs'].append(br_entry)
 
 
-            port_list = commands.getoutput("ovs-vsctl list-ports " + br).split("\n")
+            port_list = os.popen("ovs-vsctl list-ports " + br).read().split("\n")[:-1]
             for port in port_list:
                 port_entry = {"port_name":port}
                 port_stats = self.get_ovs_if_stats(port)
@@ -152,9 +152,9 @@ class CollectorAgent():
     #    self.server.register_function(self.get_stats, 'get_stats')
     #    self.server.serve_forever()
 
-#if __name__ == '__main__':
-	#agent = CollectorAgent()
-	#print agent.get_stats()
+if __name__ == '__main__':
+	agent = CollectorAgent()
+	print(agent.get_stats())
 
     # Run the server's main loop
     #try:
