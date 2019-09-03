@@ -104,7 +104,7 @@ class CollectorAgent():
         self.get_hardware_resources()
         self.get_pifs_stats()
         self.cpu_back_queue_stats()
-        self.get_vifs_stats()
+        self.get_vifs_stats_vimemu()
         return self.results
 
     #def start_agent_service(self):
