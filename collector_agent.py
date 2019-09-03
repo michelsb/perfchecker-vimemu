@@ -81,7 +81,7 @@ class CollectorAgent():
 
         #self.results['vifs'] = []
         self.results['dc_brs'] = []
-        self.results['vnf_vifs'] = []
+        self.results['vm_vifs'] = []
         self.results['other_brs'] = []
         self.results['other_vifs'] = []
 
@@ -99,7 +99,6 @@ class CollectorAgent():
             if not is_dc:
                 self.results['other_brs'].append(br_entry)
 
-
             port_list = os.popen("ovs-vsctl list-ports " + br).read().split("\n")[:-1]
             for port in port_list:
                 port_entry = {"port_name":port}
@@ -113,8 +112,9 @@ class CollectorAgent():
                     for index in range(0,len(dc_ifs_list)):
                         if dc_ifs_list[index] == port:
                             port_entry["vm_name"] = vm[1]
-                            port_entry["vm_port_name"] = vm_ifs_list[index]  
-                            self.results['vnf_vifs'].append(port_entry)
+                            port_entry["vm_port_name"] = vm_ifs_list[index]
+                            port_entry["dc_name"] = br_entry["dc_name"]  
+                            self.results['vm_vifs'].append(port_entry)
                             is_vm = True
                 if not is_vm:
                     self.results['other_vifs'].append(port_entry)
@@ -152,9 +152,9 @@ class CollectorAgent():
     #    self.server.register_function(self.get_stats, 'get_stats')
     #    self.server.serve_forever()
 
-if __name__ == '__main__':
-	agent = CollectorAgent()
-	print(agent.get_stats())
+#if __name__ == '__main__':
+	#agent = CollectorAgent()
+	#print(agent.get_stats())
 
     # Run the server's main loop
     #try:
