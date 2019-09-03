@@ -101,9 +101,9 @@ class CollectorManager():
                                 vm_vif["ns_name"] = ns["name"]
                                 vm_vif["ns_id"] = ns["id"]
                                 vm_vif["vnf_id"] = vnf["id"]
-		else:
-            		self.osmclient = Client(host=self.nbi_host_ip)
-	  		break
+            else:
+                self.osmclient = Client(host=self.nbi_host_ip)
+                break
 
         print("Stats from server " + self.hostname + " captured...")
 
