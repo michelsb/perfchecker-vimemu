@@ -94,7 +94,7 @@ class CollectorAgent():
         for vm in compute_list:
             vm_usage_entry = {"vm_name":vm[1]}
             container_name = "mn." + vm[1]
-            stats = os.popen("docker stats "+container_name+" --no-stream --format '{{.CPUPerc}}:{{.MemPerc}}:{{.MemUsage}}:{{.NetIO}}:{{.BlockIO}}'").read()[:-1].replace("/",":").split(":")
+            stats = os.popen("docker stats "+container_name+" --no-stream --format '{{.CPUPerc}}:{{.MemPerc}}:{{.MemUsage}}:{{.NetIO}}:{{.BlockIO}}'").read()[:-1].replace(" ","").replace("/",":").split(":")
             vm_usage_entry["cpu_load"] = float(stats[0][:-1])
             vm_usage_entry["mem_load"] = float(stats[1][:-1])
             vm_usage_entry["mem_usage_bytes"] = parseSize(stats[2])
