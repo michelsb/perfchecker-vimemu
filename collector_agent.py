@@ -3,6 +3,13 @@ import os
 import time
 import re
 
+units = {"B": 1, "KiB": 10**3, "KB": 10**3, "kB": 10**3, "MiB": 10**6, "MB": 10**6, "mB": 10**6, "GiB": 10**9, "GB": 10**9, "gB": 10**9, "TiB": 10**12, "TB": 10**12, "tB": 10**12}
+
+def parseSize(size):
+    for unit in units:
+        if size.endswith(unit):
+            number = size[:-len(unit)]
+            return int(float(number)*units[unit])
 
 class CollectorAgent():
     def __init__(self):
@@ -10,7 +17,6 @@ class CollectorAgent():
         self.phy_interfaces = ['eth0', 'eth1']
         #self.tun_interfaces = ['fs1-eth1','root-eth0']
         self.results = dict()
-       
 
     def get_hardware_resources(self):
         cpu_data = os.popen("top -b -n1 -p 1 | grep 'Cpu' | tail -1").read().split(" ")
@@ -69,7 +75,7 @@ class CollectorAgent():
         if_entry['tx_bytes'] = float(tx_bytes)
         return if_entry
 
-    def get_vifs_stats_vimemu(self):
+    def get_vm_stats_vimemu(self):
 
         # [line.replace(" ","")[1:-1].split("|") for line in commands.getoutput("vim-emu datacenter list").split('\n') if "-+-" not in line and "=+=" not in line]
         # [line.replace(" ","")[1:-1].split("|") for line in commands.getoutput("vim-emu compute list").split('\n') if "-+-" not in line and "=+=" not in line]
@@ -79,11 +85,25 @@ class CollectorAgent():
 
         br_list = os.popen("ovs-vsctl list-br").read().split("\n")[:-1]
 
-        #self.results['vifs'] = []
+        self.results['vm_usage'] = []
         self.results['dc_brs'] = []
         self.results['vm_vifs'] = []
         self.results['other_brs'] = []
         self.results['other_vifs'] = []
+
+        for vm in compute_list:
+            vm_usage_entry = {"vm_name":vm[1]}
+            container_name = "mn." + vm[1]
+            stats = os.popen("docker stats "+container_name+" --no-stream --format '{{.CPUPerc}}:{{.MemPerc}}:{{.MemUsage}}:{{.NetIO}}:{{.BlockIO}}'").read()[:-1].replace("/",":").split(":")
+            vm_usage_entry["cpu_load"] = float(stats[0][:-1])
+            vm_usage_entry["mem_load"] = float(stats[1][:-1])
+            vm_usage_entry["mem_usage_bytes"] = parseSize(stats[2])
+            vm_usage_entry["mem_limit_bytes"] = parseSize(stats[3])
+            vm_usage_entry["pkt_in_bytes"] = parseSize(stats[4])
+            vm_usage_entry["pkt_out_bytes"] = parseSize(stats[5])
+            vm_usage_entry["disk_in_bytes"] = parseSize(stats[6])
+            vm_usage_entry["disk_out_bytes"] = parseSize(stats[7])
+            self.results['vm_usage'].append(vm_usage_entry)
 
         for br in br_list:
             br_entry = {"name":br}
@@ -144,7 +164,7 @@ class CollectorAgent():
         self.get_hardware_resources()
         self.get_pifs_stats()
         self.cpu_back_queue_stats()
-        self.get_vifs_stats_vimemu()
+        self.get_vm_stats_vimemu()
         return self.results
 
     #def start_agent_service(self):

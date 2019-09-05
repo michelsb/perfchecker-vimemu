@@ -2,7 +2,7 @@
 import time
 import copy
 import collector_agent
-from lib.osmclient.client import Client
+#from lib.osmclient.client import Client
 
 class CollectorManager():
     def __init__(self):
@@ -11,12 +11,12 @@ class CollectorManager():
         self.old_results = {}
         self.diff_time = 0.0
         self.firstTime = True
-        ref_file = open("parameters.txt", "r")
-        for line in ref_file:
-            field = line.split(':')[0].split()[0]
-            if field == "nbi_host_ip":
-                self.nbi_host_ip = line.split(':')[1].split()[0]
-        self.osmclient = Client(host=self.nbi_host_ip)
+        # ref_file = open("parameters.txt", "r")
+        # for line in ref_file:
+        #     field = line.split(':')[0].split()[0]
+        #     if field == "nbi_host_ip":
+        #         self.nbi_host_ip = line.split(':')[1].split()[0]
+        #self.osmclient = Client(host=self.nbi_host_ip)
         self.hostname = "vim-emu"
 
     def locate_elem_list (self, list, value):
@@ -57,7 +57,6 @@ class CollectorManager():
                 self.diff_time = round((new_server_stats['timestamp'] - old_server_stats['timestamp']),1)
                 new_server_stats['timestamp'] = new_server_stats['timestamp'] * 1000
                 self.diff_elem_list_stats(old_server_stats["pifs"], new_server_stats["pifs"], 1)
-                #self.diff_elem_list_stats(old_server_stats["tunifs"], new_server_stats["tunifs"], 1)
                 self.diff_elem_list_stats(old_server_stats["dc_brs"], new_server_stats["dc_brs"], 1)
                 self.diff_elem_list_stats(old_server_stats["vm_vifs"], new_server_stats["vm_vifs"], 1)
                 self.diff_elem_list_stats(old_server_stats["other_brs"], new_server_stats["other_brs"], 1)
@@ -80,30 +79,29 @@ class CollectorManager():
         server_entry['pifs'] = remote_stats['pifs']
         server_entry['cpu_back_queue'] = remote_stats['cpu_back_queue']
 
+        server_entry['vm_usage'] = remote_stats['vm_usage']
         server_entry['dc_brs'] = remote_stats['dc_brs']
         server_entry['vm_vifs'] = remote_stats['vm_vifs']
         server_entry['other_brs'] = remote_stats['other_brs']
         server_entry['other_vifs'] = remote_stats['other_vifs']
 
-        nfv_services = self.osmclient.ns.list(filter="operational-status=running")
-        #vdu_list = {} 
-        for ns in nfv_services:
-            #if (ns is not None) and (type(ns) is not str):
-            if isinstance(ns,dict):
-                flt = "nsr-id-ref="+ns["id"]
-                vnfs = self.osmclient.vnf.list(filter=flt)
-                for vnf in vnfs:
-                    for vdu in vnf["vdur"]:
-                        for vm_vif in server_entry['vm_vifs']:
-                            prefix_size = len(vm_vif["dc_name"])+1
-                            vm_name = vm_vif["vm_name"][prefix_size:]
-                            if vm_name == vdu["name"]:
-                                vm_vif["ns_name"] = ns["name"]
-                                vm_vif["ns_id"] = ns["id"]
-                                vm_vif["vnf_id"] = vnf["id"]
-            else:
-                self.osmclient = Client(host=self.nbi_host_ip)
-                break
+        # nfv_services = self.osmclient.ns.list(filter="operational-status=running")
+        # for ns in nfv_services:
+        #     if isinstance(ns,dict):
+        #         flt = "nsr-id-ref="+ns["id"]
+        #         vnfs = self.osmclient.vnf.list(filter=flt)
+        #         for vnf in vnfs:
+        #             for vdu in vnf["vdur"]:
+        #                 for vm_vif in server_entry['vm_vifs']:
+        #                     prefix_size = len(vm_vif["dc_name"])+1
+        #                     vm_name = vm_vif["vm_name"][prefix_size:]
+        #                     if vm_name == vdu["name"]:
+        #                         vm_vif["ns_name"] = ns["name"]
+        #                         vm_vif["ns_id"] = ns["id"]
+        #                         vm_vif["vnf_id"] = vnf["id"]
+        #     else:
+        #         self.osmclient = Client(host=self.nbi_host_ip)
+        #         break
 
         print("Stats from server " + self.hostname + " captured...")
 
