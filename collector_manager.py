@@ -57,7 +57,7 @@ class CollectorManager():
                 self.diff_time = round((new_server_stats['timestamp'] - old_server_stats['timestamp']),1)
                 new_server_stats['timestamp'] = new_server_stats['timestamp'] * 1000
                 self.diff_elem_list_stats(old_server_stats["pifs"], new_server_stats["pifs"], 1)
-                self.diff_elem_list_stats(old_server_stats["tunifs"], new_server_stats["tunifs"], 1)
+                #self.diff_elem_list_stats(old_server_stats["tunifs"], new_server_stats["tunifs"], 1)
                 self.diff_elem_list_stats(old_server_stats["dc_brs"], new_server_stats["dc_brs"], 1)
                 self.diff_elem_list_stats(old_server_stats["vm_vifs"], new_server_stats["vm_vifs"], 1)
                 self.diff_elem_list_stats(old_server_stats["other_brs"], new_server_stats["other_brs"], 1)
@@ -70,7 +70,7 @@ class CollectorManager():
 
     def get_stats_from_server(self):
         server_entry = {'name':self.hostname,'timestamp': 0.0,'cpu_load':0.0,'mem_load':0.0,
-                        'pifs':[],'cpu_back_queue':[],'vifs':[]}
+                        'pifs':[],'cpu_back_queue':[]}
 
         # Get remote data from server
         remote_stats = self.agent.get_stats()
@@ -133,11 +133,13 @@ class CollectorManager():
             self.get_metrics_from_server()
             self.firstTime = False
 
-if __name__ == '__main__':
-    manager = CollectorManager()
-    manager.start_manager()
-    time.sleep(2)
-    print(manager.get_metrics_from_server())
+#if __name__ == '__main__':
+#    manager = CollectorManager()
+#    manager.start_manager()
+#    time.sleep(2)
+#    print(manager.get_metrics_from_server())
+
+
 #    try:
 #        print 'Use Control-C to exit'
 #        manager = MiningManager()

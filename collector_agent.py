@@ -86,13 +86,13 @@ class CollectorAgent():
         self.results['other_vifs'] = []
 
         for br in br_list:
-            br_entry = {"br_name":br}
+            br_entry = {"name":br}
             br_stats = self.get_ovs_if_stats(br)
             for elem in br_stats:
                 br_entry[elem] = br_stats[elem]
             is_dc = False
             for dc in datacenter_list:
-                if br_entry["br_name"] == dc[2]:
+                if br_entry["name"] == dc[2]:
                     br_entry["dc_name"] = dc[0]
                     self.results['dc_brs'].append(br_entry)
                     is_dc = True
@@ -101,7 +101,7 @@ class CollectorAgent():
 
             port_list = os.popen("ovs-vsctl list-ports " + br).read().split("\n")[:-1]
             for port in port_list:
-                port_entry = {"port_name":port}
+                port_entry = {"name":port}
                 port_stats = self.get_ovs_if_stats(port)
                 for elem in port_stats:
                     port_entry[elem] = port_stats[elem]
