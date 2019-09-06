@@ -2,7 +2,7 @@
 import time
 import copy
 import collector_agent
-#from lib.osmclient.client import Client
+import threading
 
 class CollectorManager():
     def __init__(self):
