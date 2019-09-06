@@ -12,4 +12,4 @@ for pid in $(pidof -x app.py); do
     fi 
 done
 
-nohup ./app.py > out.log 2>&1 &
+nohup python3 app.py > out.log 2>&1 &
