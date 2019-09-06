@@ -18,7 +18,7 @@ manager.start_manager()
 
 @app.route("/perfchecker")
 def perfchecker_results():
-    results = manager.get_metrics_from_server()
+    results = manager.collect()
     return jsonify(results)
     
     #json_results = json.dumps(results, default=json_util.default)

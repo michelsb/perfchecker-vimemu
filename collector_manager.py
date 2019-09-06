@@ -11,12 +11,6 @@ class CollectorManager():
         self.old_results = {}
         self.diff_time = 0.0
         self.firstTime = True
-        # ref_file = open("parameters.txt", "r")
-        # for line in ref_file:
-        #     field = line.split(':')[0].split()[0]
-        #     if field == "nbi_host_ip":
-        #         self.nbi_host_ip = line.split(':')[1].split()[0]
-        #self.osmclient = Client(host=self.nbi_host_ip)
         self.hostname = "vim-emu"
 
     def locate_elem_list (self, list, value):
@@ -117,8 +111,9 @@ class CollectorManager():
         response = {}
         self.get_stats()
         response = self.calculate_metrics()
-        self.old_results = copy.deepcopy(self.new_results)        
-        return response
+        self.old_results = copy.deepcopy(self.new_results)
+        self.current_metrics = response
+        threading.Timer(5, self.get_metrics_from_server).start()        
 
     def connect(self):                
         self.get_stats()
@@ -130,6 +125,10 @@ class CollectorManager():
             time.sleep(2)
             self.get_metrics_from_server()
             self.firstTime = False
+
+    def collect(self):
+        return self.current_metrics
+
 
 #if __name__ == '__main__':
 #    manager = CollectorManager()
