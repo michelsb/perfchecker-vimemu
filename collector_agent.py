@@ -3,13 +3,14 @@ import os
 import time
 import re
 
-units = {"B": 1, "KiB": 10**3, "KB": 10**3, "kB": 10**3, "MiB": 10**6, "MB": 10**6, "mB": 10**6, "GiB": 10**9, "GB": 10**9, "gB": 10**9, "TiB": 10**12, "TB": 10**12, "tB": 10**12}
+units_list = ["TiB", "GiB", "MiB", "KiB", "TB", "GB", "MB", "KB", "tB", "gB", "mB", "kB", "B"]
+units_map = {"B": 1, "KiB": 10**3, "KB": 10**3, "kB": 10**3, "MiB": 10**6, "MB": 10**6, "mB": 10**6, "GiB": 10**9, "GB": 10**9, "gB": 10**9, "TiB": 10**12, "TB": 10**12, "tB": 10**12}
 
 def parseSize(size):
-    for unit in units:
+    for unit in units_list:
         if size.endswith(unit):
             number = size[:-len(unit)]
-            return int(float(number)*units[unit])
+            return int(float(number)*units_map[unit])
 
 class CollectorAgent():
     def __init__(self):

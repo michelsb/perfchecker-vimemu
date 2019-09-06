@@ -97,7 +97,7 @@ class CollectorManager():
         #         self.osmclient = Client(host=self.nbi_host_ip)
         #         break
 
-        print("Stats from server " + self.hostname + " captured...")
+        #print("Stats from server " + self.hostname + " captured...")
 
         self.new_results = server_entry
 
