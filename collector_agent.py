@@ -120,25 +120,27 @@ class CollectorAgent():
             if not is_dc:
                 self.results['other_brs'].append(br_entry)
 
-            port_list = os.popen("ovs-vsctl list-ports " + br).read().split("\n")[:-1]
-            for port in port_list:
-                port_entry = {"name":port}
-                port_stats = self.get_ovs_if_stats(port)
-                for elem in port_stats:
-                    port_entry[elem] = port_stats[elem]
-                is_vm = False
-                for vm in compute_list:
-                    vm_ifs_list = vm[3].split(",")
-                    dc_ifs_list = vm[4].split(",")
-                    for index in range(0,len(dc_ifs_list)):
-                        if dc_ifs_list[index] == port:
-                            port_entry["vm_name"] = vm[1]
-                            port_entry["vm_port_name"] = vm_ifs_list[index]
-                            port_entry["dc_name"] = br_entry["dc_name"]  
-                            self.results['vm_vifs'].append(port_entry)
-                            is_vm = True
-                if not is_vm:
-                    self.results['other_vifs'].append(port_entry)
+            if is_dc:
+                port_list = os.popen("ovs-vsctl list-ports " + br).read().split("\n")[:-1]
+                for port in port_list:
+                    port_entry = {"name":port}
+                    port_entry["dc_name"] = br_entry["dc_name"]  
+                    port_stats = self.get_ovs_if_stats(port)
+                    for elem in port_stats:
+                        port_entry[elem] = port_stats[elem]
+                    is_vm = False
+                    for vm in compute_list:
+                        vm_ifs_list = vm[3].split(",")
+                        dc_ifs_list = vm[4].split(",")
+                        for index in range(0,len(dc_ifs_list)):
+                            if dc_ifs_list[index] == port:
+                                port_entry["vm_name"] = vm[1]
+                                port_entry["vm_port_name"] = vm_ifs_list[index]
+                                #port_entry["dc_name"] = br_entry["dc_name"]  
+                                self.results['vm_vifs'].append(port_entry)
+                                is_vm = True
+                    if not is_vm:
+                        self.results['other_vifs'].append(port_entry)
 
         # for br in br_list:
         #     br_entry = {"br_name":br,"br_stats":{},"ports":[]}
